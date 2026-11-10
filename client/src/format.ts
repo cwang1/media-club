@@ -41,19 +41,26 @@ export function initials(name: string) {
     .split(/\s+/)
     .filter(Boolean)
     .slice(0, 2)
-    .map((p) => p[0]!.toUpperCase())
+    .map((p) => p[0].toUpperCase())
     .join('');
 }
 
 export function timeAgo(iso: string) {
   const diff = (Date.now() - new Date(iso).getTime()) / 1000;
   if (diff < 60) return 'just now';
-  const units: Array<[number, string]> = [[60, 'minute'], [60, 'hour'], [24, 'day'], [7, 'week'], [4.35, 'month'], [12, 'year']];
+  const units: Array<[number, string]> = [
+    [60, 'minute'],
+    [60, 'hour'],
+    [24, 'day'],
+    [7, 'week'],
+    [4.35, 'month'],
+    [12, 'year'],
+  ];
   let value = diff / 60;
   let label = 'minute';
-  for (let i = 1; i < units.length && value >= units[i]![0]; i++) {
-    value /= units[i]![0];
-    label = units[i]![1];
+  for (let i = 1; i < units.length && value >= units[i][0]; i++) {
+    value /= units[i][0];
+    label = units[i][1];
   }
   const n = Math.floor(value);
   return `${n} ${label}${n === 1 ? '' : 's'} ago`;

@@ -71,7 +71,14 @@ await context.addInitScript(() => {
     const caption = document.createElement('div');
     caption.id = 'demo-caption';
     document.body.append(cursor, caption);
-    addEventListener('mousemove', (e) => { cursor.style.left = `${e.clientX}px`; cursor.style.top = `${e.clientY}px`; }, true);
+    addEventListener(
+      'mousemove',
+      (e) => {
+        cursor.style.left = `${e.clientX}px`;
+        cursor.style.top = `${e.clientY}px`;
+      },
+      true,
+    );
     addEventListener('mousedown', () => cursor.classList.add('down'), true);
     addEventListener('mouseup', () => cursor.classList.remove('down'), true);
   });
@@ -82,11 +89,14 @@ let shot = 0;
 const wait = (ms) => page.waitForTimeout(ms);
 
 async function caption(title, sub = '') {
-  await page.evaluate(([t, s]) => {
-    const el = document.getElementById('demo-caption');
-    el.innerHTML = t ? `${t}${s ? `<small>${s}</small>` : ''}` : '';
-    el.classList.toggle('show', !!t);
-  }, [title, sub]);
+  await page.evaluate(
+    ([t, s]) => {
+      const el = document.getElementById('demo-caption');
+      el.innerHTML = t ? `${t}${s ? `<small>${s}</small>` : ''}` : '';
+      el.classList.toggle('show', !!t);
+    },
+    [title, sub],
+  );
   await wait(title ? 1600 : 300);
 }
 
@@ -129,7 +139,8 @@ await page.goto(BASE);
 await page.evaluate(() => {
   const t = document.createElement('div');
   t.id = 'demo-title';
-  t.innerHTML = '<div style="font-size:72px">🍿</div><h1>Media Club</h1><p>A shared watchlist for a circle of friends</p>';
+  t.innerHTML =
+    '<div style="font-size:72px">🍿</div><h1>Media Club</h1><p>A shared watchlist for a circle of friends</p>';
   document.body.append(t);
 });
 await wait(2500);
@@ -141,7 +152,7 @@ await page.evaluate(() => {
 await wait(800);
 
 // Who's watching
-await caption("First, pick who you are", 'No passwords: the browser remembers your choice');
+await caption('First, pick who you are', 'No passwords: claiming your name gives this browser a private key');
 await snap('pick-member');
 await click(dialog().locator('.member-choice', { hasText: 'Ana' }), 900);
 await caption('');
@@ -180,7 +191,10 @@ await click(form.locator('.segmented label', { hasText: 'Show' }), 400);
 await type(form.getByLabel('Title'), 'Andor');
 await type(form.getByLabel('Genre'), 'Sci-Fi');
 await type(form.getByLabel(/minutes/), '45');
-await type(form.getByLabel(/Pitch/), 'A slow-burn spy thriller set in a galaxy far away. Season one ends with an all-timer of a speech.');
+await type(
+  form.getByLabel(/Pitch/),
+  'A slow-burn spy thriller set in a galaxy far away. Season one ends with an all-timer of a speech.',
+);
 await snap('suggest-form');
 await click(form.getByRole('button', { name: 'Add to backlog' }), 1500);
 await snap('created');

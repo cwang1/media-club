@@ -6,10 +6,7 @@ export type DB = DatabaseSync;
 
 export const MEDIA_TYPES = ['movie', 'show', 'book'] as const;
 export const STATUSES = ['to_watch', 'watching', 'completed'] as const;
-export const MEMBER_COLORS = [
-  '#c2410c', '#0f766e', '#7c3aed', '#be185d',
-  '#1d4ed8', '#4d7c0f', '#b45309', '#0e7490',
-];
+export const MEMBER_COLORS = ['#c2410c', '#0f766e', '#7c3aed', '#be185d', '#1d4ed8', '#4d7c0f', '#b45309', '#0e7490'];
 
 const NOW = `(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`;
 
@@ -18,6 +15,7 @@ CREATE TABLE IF NOT EXISTS members (
   id          INTEGER PRIMARY KEY AUTOINCREMENT,
   name        TEXT NOT NULL UNIQUE COLLATE NOCASE,
   color       TEXT NOT NULL,
+  token_hash  TEXT,
   created_at  TEXT NOT NULL DEFAULT ${NOW}
 );
 
@@ -55,8 +53,16 @@ export function openDb(file: string, opts: { seed?: boolean } = {}): DB {
   db.exec('PRAGMA foreign_keys = ON;');
   if (file !== ':memory:') db.exec('PRAGMA journal_mode = WAL;');
   db.exec(SCHEMA);
+  migrate(db);
   if (opts.seed) seedIfEmpty(db);
   return db;
+}
+
+/** Brings databases created by older versions up to date. */
+function migrate(db: DB) {
+  const cols = db.prepare('PRAGMA table_info(members)').all() as Array<{ name: string }>;
+  if (!cols.some((c) => c.name === 'token_hash')) db.exec('ALTER TABLE members ADD COLUMN token_hash TEXT');
+  db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_members_token ON members(token_hash)');
 }
 
 export function nowSql() {
@@ -70,43 +76,101 @@ function seedIfEmpty(db: DB) {
 
   const members = ['Ana', 'Ben', 'Chloe', 'Dev'];
   const items: Array<{
-    title: string; type: string; genre: string; runtime: number; pitch: string;
-    status: string; by: number; reviews?: Array<[member: number, stars: number | null, comment: string]>;
+    title: string;
+    type: string;
+    genre: string;
+    runtime: number;
+    pitch: string;
+    status: string;
+    by: number;
+    reviews?: Array<[member: number, stars: number | null, comment: string]>;
   }> = [
     {
-      title: 'Dune: Part Two', type: 'movie', genre: 'Sci-Fi', runtime: 166, status: 'completed', by: 0,
-      pitch: 'Giant worms, desert politics, and a soundtrack you feel in your ribs. Needs the biggest screen we can find.',
-      reviews: [[0, 5, 'Worth every minute. The sound design alone!'], [1, 4, 'Long, but it never dragged.'], [3, 4, '']],
+      title: 'Dune: Part Two',
+      type: 'movie',
+      genre: 'Sci-Fi',
+      runtime: 166,
+      status: 'completed',
+      by: 0,
+      pitch:
+        'Giant worms, desert politics, and a soundtrack you feel in your ribs. Needs the biggest screen we can find.',
+      reviews: [
+        [0, 5, 'Worth every minute. The sound design alone!'],
+        [1, 4, 'Long, but it never dragged.'],
+        [3, 4, ''],
+      ],
     },
     {
-      title: 'The Bear', type: 'show', genre: 'Drama', runtime: 30, status: 'watching', by: 2,
+      title: 'The Bear',
+      type: 'show',
+      genre: 'Drama',
+      runtime: 30,
+      status: 'watching',
+      by: 2,
       pitch: 'Stressful kitchen chaos with a big heart. Short episodes, easy to fit into a weeknight.',
       reviews: [[2, null, 'Halfway through season one - the long take in episode 7 is wild.']],
     },
     {
-      title: 'Project Hail Mary', type: 'book', genre: 'Sci-Fi', runtime: 476, status: 'to_watch', by: 1,
+      title: 'Project Hail Mary',
+      type: 'book',
+      genre: 'Sci-Fi',
+      runtime: 476,
+      status: 'to_watch',
+      by: 1,
       pitch: 'A lone astronaut wakes up with amnesia and a problem the size of the sun. Funny and very nerdy.',
     },
     {
-      title: 'Paddington 2', type: 'movie', genre: 'Comedy', runtime: 104, status: 'completed', by: 3,
+      title: 'Paddington 2',
+      type: 'movie',
+      genre: 'Comedy',
+      runtime: 104,
+      status: 'completed',
+      by: 3,
       pitch: 'The most wholesome heist movie ever made. Marmalade sandwiches recommended.',
-      reviews: [[3, 5, 'Perfect film, no notes.'], [0, 5, 'Cried at a bear. Twice.'], [2, 4, 'Charming from start to finish.']],
+      reviews: [
+        [3, 5, 'Perfect film, no notes.'],
+        [0, 5, 'Cried at a bear. Twice.'],
+        [2, 4, 'Charming from start to finish.'],
+      ],
     },
     {
-      title: 'Severance', type: 'show', genre: 'Thriller', runtime: 50, status: 'to_watch', by: 0,
+      title: 'Severance',
+      type: 'show',
+      genre: 'Thriller',
+      runtime: 50,
+      status: 'to_watch',
+      by: 0,
       pitch: 'Office workers who surgically split work memories from home ones. Eerie, funny, and very bingeable.',
     },
     {
-      title: 'Piranesi', type: 'book', genre: 'Fantasy', runtime: 272, status: 'completed', by: 2,
+      title: 'Piranesi',
+      type: 'book',
+      genre: 'Fantasy',
+      runtime: 272,
+      status: 'completed',
+      by: 2,
       pitch: 'A man lives alone in an endless house of statues and tides. Short, strange and beautiful.',
-      reviews: [[2, 5, 'Read it in two sittings.'], [1, 3, 'Gorgeous writing, slow start for me.']],
+      reviews: [
+        [2, 5, 'Read it in two sittings.'],
+        [1, 3, 'Gorgeous writing, slow start for me.'],
+      ],
     },
     {
-      title: 'Spirited Away', type: 'movie', genre: 'Animation', runtime: 125, status: 'to_watch', by: 1,
+      title: 'Spirited Away',
+      type: 'movie',
+      genre: 'Animation',
+      runtime: 125,
+      status: 'to_watch',
+      by: 1,
       pitch: 'A girl stumbles into a bathhouse for spirits. Some of us have somehow never seen it.',
     },
     {
-      title: 'Arrival', type: 'movie', genre: 'Sci-Fi', runtime: 116, status: 'to_watch', by: 3,
+      title: 'Arrival',
+      type: 'movie',
+      genre: 'Sci-Fi',
+      runtime: 116,
+      status: 'to_watch',
+      by: 3,
       pitch: 'A linguist tries to talk to aliens. Quiet, clever, and great to discuss afterwards.',
     },
   ];
