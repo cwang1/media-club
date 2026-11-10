@@ -11,12 +11,24 @@
     "dev": "concurrently -k -n api,web -c blue,magenta \"npm run dev -w server\" \"npm run dev -w client\"",
     "test": "npm test -w server",
     "typecheck": "npm run typecheck -w server && npm run typecheck -w client",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check": "npm run typecheck && npm run lint && npm run format:check && npm test",
+    "release-member": "npm run release-member -w server --",
     "build": "npm run build -w client",
     "start": "npm run build && npm start -w server",
     "demo": "npm run build && node scripts/demo.mjs"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.5",
     "concurrently": "^9.1.2",
-    "playwright-core": "^1.65.0"
+    "eslint": "^9.39.5",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "globals": "^17.14.0",
+    "playwright-core": "^1.65.0",
+    "prettier": "^3.9.10",
+    "typescript-eslint": "^8.72.2"
   }
 }

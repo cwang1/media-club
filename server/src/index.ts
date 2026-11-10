@@ -9,6 +9,8 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const dbFile = process.env.DB_FILE ?? path.resolve(here, '../data/club.db');
 // API_PORT (not PORT) so tools that set PORT for the web dev server don't collide with the API.
 const port = Number(process.env.API_PORT ?? 3001);
+// Only reachable from this computer unless HOST says otherwise (e.g. HOST=0.0.0.0 to share on your LAN).
+const host = process.env.HOST ?? '127.0.0.1';
 
 const db = openDb(dbFile, { seed: true });
 const app = createApp(db);
@@ -20,6 +22,6 @@ if (existsSync(dist)) {
   app.get('/{*splat}', (_req, res) => res.sendFile(path.join(dist, 'index.html')));
 }
 
-app.listen(port, () => {
-  console.log(`Media Club API listening on http://localhost:${port} (db: ${dbFile})`);
+app.listen(port, host, () => {
+  console.log(`Media Club API listening on http://${host}:${port} (db: ${dbFile})`);
 });

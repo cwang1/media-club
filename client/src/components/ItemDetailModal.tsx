@@ -10,6 +10,7 @@ export function ItemDetailModal({
   refreshKey,
   onClose,
   onChanged,
+  onError,
   onEdit,
   onSkip,
   onNeedMember,
@@ -19,6 +20,7 @@ export function ItemDetailModal({
   refreshKey: number;
   onClose: () => void;
   onChanged: (msg?: string) => void;
+  onError: (e: unknown) => void;
   onEdit: (item: ItemDetail) => void;
   onSkip: (item: ItemDetail) => void;
   onNeedMember: () => void;
@@ -39,11 +41,15 @@ export function ItemDetailModal({
 
   async function setStatus(status: Status) {
     if (!item || item.status === status) return;
+    if (!me) {
+      onNeedMember();
+      return;
+    }
     try {
       setItem(await api.updateItem(item.id, { status }));
       onChanged(`Moved to ${STATUS_LABEL[status]}`);
     } catch (e) {
-      onChanged((e as Error).message);
+      onError(e);
     }
   }
 
@@ -91,7 +97,7 @@ export function ItemDetailModal({
             key={s}
             className={`step ${item.status === s ? 'on' : ''} ${STATUSES.indexOf(item.status) > i ? 'past' : ''}`}
             aria-pressed={item.status === s}
-            onClick={() => setStatus(s)}
+            onClick={() => void setStatus(s)}
           >
             {STATUS_LABEL[s]}
           </button>
@@ -198,7 +204,7 @@ function ReviewEditor({
       className="review-editor"
       onSubmit={(e) => {
         e.preventDefault();
-        if (canSave) run(() => api.saveReview(itemId, me.id, { stars, comment: comment.trim() }), 'Review saved');
+        if (canSave) void run(() => api.saveReview(itemId, me.id, { stars, comment: comment.trim() }), 'Review saved');
       }}
     >
       <div className="review-editor-head">
@@ -224,7 +230,7 @@ function ReviewEditor({
             type="button"
             className="btn ghost danger-text"
             disabled={busy}
-            onClick={() => run(() => api.deleteReview(itemId, me.id), 'Review removed')}
+            onClick={() => void run(() => api.deleteReview(itemId, me.id), 'Review removed')}
           >
             Remove my review
           </button>

@@ -6,6 +6,13 @@ export interface Member {
   id: number;
   name: string;
   color: string;
+  /** Whether some device has already claimed this profile. */
+  claimed: boolean;
+}
+
+export interface Session {
+  member: Member;
+  token: string;
 }
 
 export interface Item {
@@ -47,7 +54,6 @@ export interface ItemInput {
   genre: string;
   runtime: number | null;
   pitch: string;
-  suggested_by?: number | null;
 }
 
 export interface Filters {

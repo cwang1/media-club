@@ -25,7 +25,9 @@ export function StarDisplay({ value, size = 16 }: { value: number | null; size?:
       aria-label={value == null ? 'No rating yet' : `${value.toFixed(1)} out of 5 stars`}
     >
       <span className="stars-empty">★★★★★</span>
-      <span className="stars-fill" style={{ width: `${pct}%` }}>★★★★★</span>
+      <span className="stars-fill" style={{ width: `${pct}%` }}>
+        ★★★★★
+      </span>
     </span>
   );
 }

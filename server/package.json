@@ -6,6 +6,7 @@
     "dev": "tsx watch src/index.ts",
     "start": "tsx src/index.ts",
     "test": "node --import tsx --test test/*.test.ts",
+    "release-member": "tsx src/release-member.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
