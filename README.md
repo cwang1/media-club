@@ -2,6 +2,16 @@
 
 A small CRUD app for a circle of friends. Members suggest movies, shows and books to a shared backlog, move them from **To Watch → Watching → Completed**, and leave star ratings and comments.
 
+## Demo
+
+▶️ **[Watch the walkthrough video](demo/media-club-demo.webm)** (about 1½ minutes). It covers picking a member, browsing, filtering and sorting, suggesting a title, moving its status, rating and reviewing, editing, and skipping a title.
+
+| Browse & review | Suggest a title | Rate it |
+|---|---|---|
+| ![Reviews](demo/screenshots/05-reviews.png) | ![Suggest form](demo/screenshots/06-suggest-form.png) | ![Review posted](demo/screenshots/09-review-posted.png) |
+
+To record the demo again, run `npm run demo`. It uses a throwaway database and your installed Chrome or Edge. On first use, Playwright asks you to run `npx playwright-core install ffmpeg`.
+
 ## Quick start
 
 Requires **Node 22.13+**. The app uses the built-in `node:sqlite` module, so there are no native modules to compile.
@@ -21,6 +31,7 @@ On first run the database (`server/data/club.db`) is created and filled with fou
 | `npm test` | Runs the API tests (Node's built-in test runner, in-memory DB) |
 | `npm run typecheck` | Type-checks server and client |
 | `npm start` | Builds the client and serves the app and API from one server on port 3001 |
+| `npm run demo` | Records the walkthrough video and screenshots into `demo/` |
 
 Environment variables: `API_PORT` (default `3001`) and `DB_FILE` (default `server/data/club.db`).
 

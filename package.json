@@ -12,9 +12,11 @@
     "test": "npm test -w server",
     "typecheck": "npm run typecheck -w server && npm run typecheck -w client",
     "build": "npm run build -w client",
-    "start": "npm run build && npm start -w server"
+    "start": "npm run build && npm start -w server",
+    "demo": "npm run build && node scripts/demo.mjs"
   },
   "devDependencies": {
-    "concurrently": "^9.1.2"
+    "concurrently": "^9.1.2",
+    "playwright-core": "^1.65.0"
   }
 }
